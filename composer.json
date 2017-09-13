@@ -22,6 +22,9 @@
         "mockery/mockery": "^0.9.4"
     },
     "autoload": {
+        "classmap": [
+            "vendor/hgabka/payu-bundle/sdk/"
+        ],
         "psr-4": {
             "Hgabka\\PayUBundle\\": "src"
         }
