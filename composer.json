@@ -23,7 +23,7 @@
     },
     "autoload": {
         "classmap": [
-            "vendor/hgabka/payu-bundle/sdk/"
+            "sdk/"
         ],
         "psr-4": {
             "Hgabka\\PayUBundle\\": "src"
