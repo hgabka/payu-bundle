@@ -32,5 +32,8 @@ class HgabkaPayUExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+
+        $factoryDefinition = $container->getDefinition('hgabka_payu.payment_factory');
+        $factoryDefinition->replaceArgument(3, $config);
     }
 }

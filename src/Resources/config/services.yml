@@ -1,1 +1,5 @@
 services:
+    hgabka_payu.payment_factory:
+        class: Hgabka\PayUBundle\Factory\PaymentFactory
+        arguments: ["@doctrine", "@router", "@event_dispatcher", '']
+
