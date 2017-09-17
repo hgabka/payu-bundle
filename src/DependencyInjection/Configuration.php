@@ -35,16 +35,16 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('hgabka_payu');
+        $rootNode = $treeBuilder->root('hgabka_pay_u');
 
         $rootNode
             ->children()
-			    ->scalarNode('merchant')->isRequired()->cannotBeEmpty()->end()
-			    ->scalarNode('secret')->isRequired()->cannotBeEmpty()->end()
-			    ->booleanNode('logging')->defaultTrue()->end()
-			    ->booleanNode('migration')->defaultTrue()->end()
-			    ->booleanNode('sandbox')->defaultFalse()->end()
-				->scalarNode('log_path')->defaultValue($this->container->getParameter('kernel.logs_dir').'/payu')->end()
+                ->scalarNode('merchant')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('secret')->isRequired()->cannotBeEmpty()->end()
+                ->booleanNode('logging')->defaultTrue()->end()
+                ->booleanNode('migration')->defaultTrue()->end()
+                ->booleanNode('sandbox')->defaultFalse()->end()
+                ->scalarNode('log_path')->defaultValue($this->container->getParameter('kernel.logs_dir').'/payu')->end()
             ->end()
         ;
 

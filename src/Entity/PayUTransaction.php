@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *     Dariusz Rumiński <dariusz.ruminski@gmail.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Hgabka\PayUBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -28,7 +36,7 @@ class PayUTransaction
     protected $payuRefno;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(type="bigint", name="shop_order_id", nullable=true)
      */
@@ -90,7 +98,6 @@ class PayUTransaction
      */
     protected $currency;
 
-
     /**
      * @var \DateTime
      * @Gedmo\Timestampable(on="create")
@@ -115,6 +122,7 @@ class PayUTransaction
 
     /**
      * @param mixed $id
+     *
      * @return PayUTransaction
      */
     public function setId($id)
@@ -134,6 +142,7 @@ class PayUTransaction
 
     /**
      * @param string $payuRefno
+     *
      * @return PayUTransaction
      */
     public function setPayuRefno($payuRefno)
@@ -153,6 +162,7 @@ class PayUTransaction
 
     /**
      * @param int $shopOrderId
+     *
      * @return PayUTransaction
      */
     public function setShopOrderId($shopOrderId)
@@ -172,6 +182,7 @@ class PayUTransaction
 
     /**
      * @param string $state
+     *
      * @return PayUTransaction
      */
     public function setState($state)
@@ -191,6 +202,7 @@ class PayUTransaction
 
     /**
      * @param string $payuStatus
+     *
      * @return PayUTransaction
      */
     public function setPayuStatus($payuStatus)
@@ -210,6 +222,7 @@ class PayUTransaction
 
     /**
      * @param string $payuRc
+     *
      * @return PayUTransaction
      */
     public function setPayuRc($payuRc)
@@ -229,6 +242,7 @@ class PayUTransaction
 
     /**
      * @param string $payuRt
+     *
      * @return PayUTransaction
      */
     public function setPayuRt($payuRt)
@@ -248,6 +262,7 @@ class PayUTransaction
 
     /**
      * @param string $payuDate
+     *
      * @return PayUTransaction
      */
     public function setPayuDate($payuDate)
@@ -267,6 +282,7 @@ class PayUTransaction
 
     /**
      * @param string $paymentType
+     *
      * @return PayUTransaction
      */
     public function setPaymentType($paymentType)
@@ -286,6 +302,7 @@ class PayUTransaction
 
     /**
      * @param float $amount
+     *
      * @return PayUTransaction
      */
     public function setAmount($amount)
@@ -305,6 +322,8 @@ class PayUTransaction
 
     /**
      * @param string $curency
+     * @param mixed  $currency
+     *
      * @return PayUTransaction
      */
     public function setCurrency($currency)
@@ -324,6 +343,7 @@ class PayUTransaction
 
     /**
      * @param \DateTime $createdAt
+     *
      * @return PayUTransaction
      */
     public function setCreatedAt($createdAt)
@@ -343,6 +363,7 @@ class PayUTransaction
 
     /**
      * @param \DateTime $updatedAt
+     *
      * @return PayUTransaction
      */
     public function setUpdatedAt($updatedAt)

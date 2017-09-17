@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *     Dariusz Rumiński <dariusz.ruminski@gmail.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Hgabka\PayUBundle\Event;
 
 use Hgabka\PayUBundle\Entity\PayUTransaction;
@@ -10,16 +18,16 @@ class PayUEvent extends Event
     const EVENT_TRANSACTION_CREATED = 'hgabka_payu.transaction_created';
     const EVENT_PAYMENT_CONFIRMED = 'hgabka_payu.payment_confirmed';
 
-    /** @var  array */
+    /** @var array */
     protected $parameters = [];
 
-    /** @var  null|array */
-    protected $response = null;
+    /** @var null|array */
+    protected $response;
 
-    /** @var  PayUTransaction */
+    /** @var PayUTransaction */
     protected $transaction;
 
-    /** @var  int */
+    /** @var int */
     protected $orderId;
 
     /**
@@ -32,6 +40,7 @@ class PayUEvent extends Event
 
     /**
      * @param array $parameters
+     *
      * @return PayUEvent
      */
     public function setParameters($parameters)
@@ -51,6 +60,7 @@ class PayUEvent extends Event
 
     /**
      * @param null|array $response
+     *
      * @return PayUEvent
      */
     public function setResponse($response)
@@ -70,6 +80,7 @@ class PayUEvent extends Event
 
     /**
      * @param null|PayUTransaction $transaction
+     *
      * @return PayUEvent
      */
     public function setTransaction($transaction)
@@ -89,6 +100,7 @@ class PayUEvent extends Event
 
     /**
      * @param int $orderId
+     *
      * @return PayUEvent
      */
     public function setOrderId($orderId)

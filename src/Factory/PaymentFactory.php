@@ -1,20 +1,21 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sfhun
- * Date: 2017.09.13.
- * Time: 21:01
+
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *     Dariusz Rumiński <dariusz.ruminski@gmail.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
 
 namespace Hgabka\PayUBundle\Factory;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
+use Hgabka\PayUBundle\Entity\PayUTransaction as TransactionEntity;
 use Hgabka\PayUBundle\Event\PayUEvent;
 use Hgabka\PayUBundle\Payment\PayUPayment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Translation\TranslatorInterface;
-use Hgabka\PayUBundle\Entity\PayUTransaction as TransactionEntity;
 
 class PaymentFactory
 {
@@ -22,24 +23,25 @@ class PaymentFactory
     const STATUS_SUCCESS = 'SUCCESS';
     const STATUS_CANCEL = 'CANCEL';
 
-    /** @var  array */
+    /** @var array */
     protected $config;
 
-    /** @var  RouterInterface */
+    /** @var RouterInterface */
     protected $router;
 
-    /** @var  Registry $doctrine */
+    /** @var Registry $doctrine */
     protected $doctrine;
 
-    /** @var  EventDispatcherInterface $dispatcher */
+    /** @var EventDispatcherInterface $dispatcher */
     protected $dispatcher;
 
     /**
      * PaymentFactory constructor.
-     * @param Registry $doctrine
-     * @param RouterInterface $router
+     *
+     * @param Registry                 $doctrine
+     * @param RouterInterface          $router
      * @param EventDispatcherInterface $dispatcher
-     * @param array $config
+     * @param array                    $config
      */
     public function __construct(Registry $doctrine, RouterInterface $router, EventDispatcherInterface $dispatcher, array $config)
     {
@@ -76,7 +78,7 @@ class PaymentFactory
             $transaction = new TransactionEntity();
         }
 
-        if (is_null($transaction->getId()) || $transaction->getState() != self::STATUS_SUCCESS) {
+        if (null === $transaction->getId() || self::STATUS_SUCCESS !== $transaction->getState()) {
             $transaction->setShopOrderId($orderId);
             if (isset($params['RC'])) {
                 $transaction->setPayuRc($params['RC']);
@@ -182,9 +184,53 @@ class PaymentFactory
     }
 
     /**
-     * Returns subject replaced with regular expression matchs
+     * Returns a camelized string from a lower case and underscored string by replaceing slash with
+     * double-colon and upper-casing each letter preceded by an underscore.
      *
-     * @param mixed $search subject to search
+     * @param string $lower_case_and_underscored_word string to camelize
+     *
+     * @return string camelized string
+     */
+    public function camelize($lower_case_and_underscored_word)
+    {
+        return $this->pregtr($lower_case_and_underscored_word, ['#/(.?)#e' => "'::'.strtoupper('\\1')", '/(^|_|-)+(.)/e' => "strtoupper('\\2')"]);
+    }
+
+    /**
+     * Returns an underscore-syntaxed version or the CamelCased string.
+     *
+     * @param string $camel_cased_word string to underscore
+     *
+     * @return string underscored string
+     */
+    public function underscore($camel_cased_word)
+    {
+        $tmp = $camel_cased_word;
+        $tmp = str_replace('::', '/', $tmp);
+        $tmp = $this->pregtr($tmp, [
+            '/([A-Z]+)([A-Z][a-z])/' => '\\1_\\2',
+            '/([a-z\d])([A-Z])/' => '\\1_\\2',
+        ]);
+
+        return strtolower($tmp);
+    }
+
+    /**
+     * Returns corresponding table name for given classname.
+     *
+     * @param string $class_name name of class to get database table name for
+     *
+     * @return string name of the databse table for given class
+     */
+    public function tableize($class_name)
+    {
+        return $this->underscore($class_name);
+    }
+
+    /**
+     * Returns subject replaced with regular expression matchs.
+     *
+     * @param mixed $search       subject to search
      * @param array $replacePairs array of search => replace pairs
      */
     protected function pregtr($search, $replacePairs)
@@ -195,7 +241,7 @@ class PaymentFactory
                 $search = preg_replace_callback($pattern, function ($matches) use ($replacement) {
                     preg_match("/('::'\.)?([a-z]*)\('\\\\([0-9]{1})'\)/", $replacement, $match);
 
-                    return ($match[1] == '' ? '' : '::') . call_user_func($match[2], $matches[$match[3]]);
+                    return ('' === $match[1] ? '' : '::').call_user_func($match[2], $matches[$match[3]]);
                 }, $search);
             } else {
                 $search = preg_replace($pattern, $replacement, $search);
@@ -203,49 +249,5 @@ class PaymentFactory
         }
 
         return $search;
-    }
-
-    /**
-     * Returns a camelized string from a lower case and underscored string by replaceing slash with
-     * double-colon and upper-casing each letter preceded by an underscore.
-     *
-     * @param  string $lower_case_and_underscored_word String to camelize.
-     *
-     * @return string Camelized string.
-     */
-    public function camelize($lower_case_and_underscored_word)
-    {
-        return $this->pregtr($lower_case_and_underscored_word, ['#/(.?)#e' => "'::'.strtoupper('\\1')", '/(^|_|-)+(.)/e' => "strtoupper('\\2')"]);
-    }
-
-    /**
-     * Returns an underscore-syntaxed version or the CamelCased string.
-     *
-     * @param  string $camel_cased_word String to underscore.
-     *
-     * @return string Underscored string.
-     */
-    public function underscore($camel_cased_word)
-    {
-        $tmp = $camel_cased_word;
-        $tmp = str_replace('::', '/', $tmp);
-        $tmp = $this->pregtr($tmp, [
-            '/([A-Z]+)([A-Z][a-z])/' => '\\1_\\2',
-            '/([a-z\d])([A-Z])/'     => '\\1_\\2',
-        ]);
-
-        return strtolower($tmp);
-    }
-
-    /**
-     * Returns corresponding table name for given classname.
-     *
-     * @param  string $class_name  Name of class to get database table name for.
-     *
-     * @return string Name of the databse table for given class.
-     */
-    public function tableize($class_name)
-    {
-        return $this->underscore($class_name);
     }
 }

@@ -1,15 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sfhun
- * Date: 2017.09.13.
- * Time: 21:07
+
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *     Dariusz Rumiński <dariusz.ruminski@gmail.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
 
 namespace Hgabka\PayUBundle\Payment;
 
 use Hgabka\PayUBundle\Factory\PaymentFactory;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -21,7 +22,7 @@ class PayUPayment
     /** @var \PayULiveUpdate */
     protected $liveUpdate;
 
-    /** @var  RouterInterface */
+    /** @var RouterInterface */
     protected $router;
 
     /** @var PaymentFactory */
@@ -35,45 +36,18 @@ class PayUPayment
         $this->liveUpdate = new  \PayULiveUpdate($this->payUData);
     }
 
-    /**
-     * @param array $config
-     */
-    protected function setDefaults(array $config)
-    {
-        $this->payUData = [
-            'MERCHANT'         => $config['merchant'],
-            'SECRET_KEY'       => $config['secret'],
-            'METHOD'           => "",
-            'ORDER_DATE'       => date("Y-m-d H:i:s"),
-            'LOGGER'           => $config['logging'],
-            'LOG_PATH'         => $config['log_path'],
-            'LANGUAGE'         => 'HU',
-            'PRICES_CURRENCY'  => 'HUF',
-            'DISCOUNT'         => 0,
-            'ORDER_PRICE_TYPE' => 'GROSS',
-            'ORDER_SHIPPING'   => 0,
-            'MIGRATION'        => $config['migration'],
-            'SANDBOX'          => $config['sandbox'],
-            'CURL'             => true,
-            'ORDER_TIMEOUT'    => 300,
-            'GET_DATA'         => $_GET,
-            'POST_DATA'        => $_POST,
-            'SERVER_DATA'      => $_SERVER,
-        ];
-    }
-
     public function __call($method, $arguments)
     {
-        if (!in_array($verb = substr($method, 0, 3), ['set', 'get'])) {
-            throw new \Exception('Ismeretlen, vagy nem elerheto metodus: ' . get_class($this) . '::' . $method);
+        if (!in_array($verb = substr($method, 0, 3), ['set', 'get'], true)) {
+            throw new \Exception('Ismeretlen, vagy nem elerheto metodus: '.get_class($this).'::'.$method);
         }
 
         $property = substr($method, 3);
 
         // Ha setter, és nincs érték
-        if ($verb == 'set') {
+        if ('set' === $verb) {
             if (!array_key_exists(0, $arguments)) {
-                throw new \Exception('Hianyzo parameter a ' . get_class($this) . '::' . $method . ' hivasnal');
+                throw new \Exception('Hianyzo parameter a '.get_class($this).'::'.$method.' hivasnal');
             }
 
             return $this->set($property, $arguments[0]);
@@ -92,69 +66,16 @@ class PayUPayment
         return $this->setTimeoutUrl($this->router->generate($route, [], UrlGeneratorInterface::ABSOLUTE_URL));
     }
 
-    protected function get($name)
-    {
-        $prop = $this->checkProperty($name);
-
-        return is_null($prop) ? null : $this->payUData[$prop];
-    }
-
-    protected function set($name, $value)
-    {
-        $name = strtoupper(sfInflector::tableize($name));
-        $this->payUData[$name] = $value;
-
-        return $this;
-    }
-
-    protected function checkProperty($name)
-    {
-        if (array_key_exists($name, $this->payUData)) {
-            return $name;
-        }
-
-        if (array_key_exists(strtoupper($this->factory->tableize($name)), $this->payUData)) {
-            return strtoupper($this->factory->tableize($name));
-        }
-
-        return null;
-    }
-
     public function addItem($name, $code, $description, $price, $quantity = 1, $vat = 0)
     {
         $this->liveUpdate->addProduct([
-            'name'  => $name,
-            'code'  => $code,
-            'info'  => $description,
+            'name' => $name,
+            'code' => $code,
+            'info' => $description,
             'price' => $price,
-            'qty'   => $quantity,
-            'vat'   => $vat,
+            'qty' => $quantity,
+            'vat' => $vat,
         ]);
-    }
-
-    protected function setData()
-    {
-        $this->liveUpdate->logger = $this->payUData['LOGGER'];
-
-        $this->liveUpdate->log_path = $this->payUData['LOG_PATH'];
-
-        if (array_key_exists('METHOD', $this->payUData)) {
-            if (empty($this->payUData['METHOD'])) {
-                $this->liveUpdate->setField("PAY_METHOD", '');
-                $this->liveUpdate->setField("AUTOMODE", 0);
-            } else {
-                $this->liveUpdate->setField("PAY_METHOD", $this->payUData['METHOD']);
-                $this->liveUpdate->setField("AUTOMODE", 1);
-            }
-        }
-
-        foreach ($this->payUData as $key => $data) {
-            if (in_array($key, ['LOGGER', 'LOG_PATH', 'METHOD'])) {
-                continue;
-            }
-
-            $this->liveUpdate->setField($key, $data);
-        }
     }
 
     public function getForm($submitElement = 'auto', $submitElementText = false)
@@ -162,11 +83,6 @@ class PayUPayment
         $this->setData();
 
         return $this->liveUpdate->createHtmlForm('payuform', $submitElement, $submitElementText);
-    }
-
-    protected function lcfirst($string)
-    {
-        return substr_replace($string, strtolower(substr($string, 0, 1)), 0, 1);
     }
 
     public function handleBackref()
@@ -204,5 +120,90 @@ class PayUPayment
         $transaction = $this->factory->createOrGetTransactionFromIpn($params);
 
         return ['transaction' => $transaction, 'response' => $ipn->confirmReceived()];
+    }
+
+    /**
+     * @param array $config
+     */
+    protected function setDefaults(array $config)
+    {
+        $this->payUData = [
+            'MERCHANT' => $config['merchant'],
+            'SECRET_KEY' => $config['secret'],
+            'METHOD' => '',
+            'ORDER_DATE' => date('Y-m-d H:i:s'),
+            'LOGGER' => $config['logging'],
+            'LOG_PATH' => $config['log_path'],
+            'LANGUAGE' => 'HU',
+            'PRICES_CURRENCY' => 'HUF',
+            'DISCOUNT' => 0,
+            'ORDER_PRICE_TYPE' => 'GROSS',
+            'ORDER_SHIPPING' => 0,
+            'MIGRATION' => $config['migration'],
+            'SANDBOX' => $config['sandbox'],
+            'CURL' => true,
+            'ORDER_TIMEOUT' => 300,
+            'GET_DATA' => $_GET,
+            'POST_DATA' => $_POST,
+            'SERVER_DATA' => $_SERVER,
+        ];
+    }
+
+    protected function get($name)
+    {
+        $prop = $this->checkProperty($name);
+
+        return null === $prop ? null : $this->payUData[$prop];
+    }
+
+    protected function set($name, $value)
+    {
+        $name = strtoupper(sfInflector::tableize($name));
+        $this->payUData[$name] = $value;
+
+        return $this;
+    }
+
+    protected function checkProperty($name)
+    {
+        if (array_key_exists($name, $this->payUData)) {
+            return $name;
+        }
+
+        if (array_key_exists(strtoupper($this->factory->tableize($name)), $this->payUData)) {
+            return strtoupper($this->factory->tableize($name));
+        }
+
+        return null;
+    }
+
+    protected function setData()
+    {
+        $this->liveUpdate->logger = $this->payUData['LOGGER'];
+
+        $this->liveUpdate->log_path = $this->payUData['LOG_PATH'];
+
+        if (array_key_exists('METHOD', $this->payUData)) {
+            if (empty($this->payUData['METHOD'])) {
+                $this->liveUpdate->setField('PAY_METHOD', '');
+                $this->liveUpdate->setField('AUTOMODE', 0);
+            } else {
+                $this->liveUpdate->setField('PAY_METHOD', $this->payUData['METHOD']);
+                $this->liveUpdate->setField('AUTOMODE', 1);
+            }
+        }
+
+        foreach ($this->payUData as $key => $data) {
+            if (in_array($key, ['LOGGER', 'LOG_PATH', 'METHOD'], true)) {
+                continue;
+            }
+
+            $this->liveUpdate->setField($key, $data);
+        }
+    }
+
+    protected function lcfirst($string)
+    {
+        return substr_replace($string, strtolower(substr($string, 0, 1)), 0, 1);
     }
 }

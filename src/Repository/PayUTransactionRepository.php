@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of PHP CS Fixer.
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *     Dariusz Rumiński <dariusz.ruminski@gmail.com>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Hgabka\PayUBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
@@ -10,8 +18,7 @@ class PayUTransactionRepository extends EntityRepository
     {
         $orderId = $params['order_ref'];
 
-        if (!$orderId)
-        {
+        if (!$orderId) {
             throw new hgPayUException('Ures order id');
         }
 
@@ -19,35 +26,27 @@ class PayUTransactionRepository extends EntityRepository
                             ->where('t.ShopOrderId = ?', $orderId)
                             ->fetchOne();
 
-        if (!$transaction)
-        {
+        if (!$transaction) {
             $transaction = new hgPayuTransaction();
         }
 
-        if ($transaction->isNew() || $transaction->getState() != hgPayUPayment::STATUS_SUCCESS)
-        {
+        if ($transaction->isNew() || hgPayUPayment::STATUS_SUCCESS !== $transaction->getState()) {
             $transaction->setShopOrderId($orderId);
-            if (isset($params['RC']))
-            {
+            if (isset($params['RC'])) {
                 $transaction->setPayuRc($params['RC']);
             }
 
-            if (isset($params['RT']))
-            {
+            if (isset($params['RT'])) {
                 $transaction->setPayuRt($params['RT']);
             }
 
-            if (isset($params['date']))
-            {
+            if (isset($params['date'])) {
                 $transaction->setPayuDate($params['date']);
             }
 
-            if (!$statusArray)
-            {
+            if (!$statusArray) {
                 $transaction->setState(hgPayUPayment::STATUS_CANCEL);
-            }
-            else
-            {
+            } else {
                 $transaction->setState($check ? hgPayUPayment::STATUS_PENDING : hgPayUPayment::STATUS_CANCEL);
                 $transaction->setPayuRefno($statusArray['PAYREFNO']);
                 $transaction->setPaymentType($statusArray['PAYMETHOD']);
@@ -58,6 +57,5 @@ class PayUTransactionRepository extends EntityRepository
         $transaction->save();
 
         return $transaction;
-
     }
 }
