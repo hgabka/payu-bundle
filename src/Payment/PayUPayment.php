@@ -150,7 +150,7 @@ class PayUPayment
 
     protected function set($name, $value)
     {
-        $name = strtoupper(sfInflector::tableize($name));
+        $name = strtoupper($this->underscore($name));
         $this->payUData[$name] = $value;
 
         return $this;
@@ -197,5 +197,51 @@ class PayUPayment
     protected function lcfirst($string)
     {
         return substr_replace($string, strtolower(substr($string, 0, 1)), 0, 1);
+    }
+
+    /**
+     * Returns an underscore-syntaxed version or the CamelCased string.
+     *
+     * @param string $camel_cased_word string to underscore
+     *
+     * @return string underscored string
+     */
+    public function underscore($camel_cased_word)
+    {
+        $tmp = $camel_cased_word;
+        $tmp = str_replace('::', '/', $tmp);
+        $tmp = $this->pregtr($tmp, [
+            '/([A-Z]+)([A-Z][a-z])/' => '\\1_\\2',
+            '/([a-z\d])([A-Z])/' => '\\1_\\2',
+        ]);
+
+        return strtolower($tmp);
+    }
+
+
+    /**
+     * Returns subject replaced with regular expression matchs.
+     *
+     * @param mixed $search       subject to search
+     * @param array $replacePairs array of search => replace pairs
+     *
+     * @return mixed
+     */
+    public function pregtr($search, $replacePairs)
+    {
+        foreach ($replacePairs as $pattern => $replacement) {
+            if (preg_match('/(.*)e$/', $pattern, $matches)) {
+                $pattern = $matches[1];
+                $search = preg_replace_callback($pattern, function ($matches) use ($replacement) {
+                    preg_match("/('::'\.)?([a-z]*)\('\\\\([0-9]{1})'\)/", $replacement, $match);
+
+                    return ('' === $match[1] ? '' : '::').call_user_func($match[2], $matches[$match[3]]);
+                }, $search);
+            } else {
+                $search = preg_replace($pattern, $replacement, $search);
+            }
+        }
+
+        return $search;
     }
 }
