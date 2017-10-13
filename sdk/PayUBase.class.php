@@ -689,8 +689,8 @@ class PayUTransaction extends PayUBase
                 }
             } elseif ($params['type'] == "product") {
                 foreach ($this->products as $product) {
-                    if (isset($product->$params["paramName"])) {
-                        $this->hashData[] = $product->$params["paramName"];
+                    if (isset($product->{$params["paramName"]})) {
+                        $this->hashData[] = $product->{$params["paramName"]};
                     }
                 }
             }
@@ -709,8 +709,8 @@ class PayUTransaction extends PayUBase
                     $this->formData[$field] = array();
                 }
                 foreach ($this->products as $num=>$product) {
-                    if (isset($product->$params["paramName"])) {
-                        $this->formData[$field][$num] = $product->$params["paramName"];
+                    if (isset($product->{$params["paramName"]})) {
+                        $this->formData[$field][$num] = $product->{$params["paramName"]};
                     }
                 }   
             }

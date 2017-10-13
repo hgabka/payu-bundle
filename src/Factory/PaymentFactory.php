@@ -43,6 +43,9 @@ class PaymentFactory
         $this->dispatcher = $dispatcher;
     }
 
+    /**
+     * @return PayUPayment
+     */
     public function createPayment()
     {
         return new PayUPayment($this);
@@ -56,14 +59,10 @@ class PaymentFactory
             throw new \Exception('Ures order id');
         }
 
-        $transaction = $this->doctrine
+        $transaction = $this
+            ->doctrine
             ->getRepository('HgabkaPayUBundle:PayUTransaction')
-            ->createQueryBuilder('t')
-            ->where('t.ShopOrderId = :orderid')
-            ->setParameter('orderid', $orderId)
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult()
+            ->getTransactionByOrderId($orderId)
         ;
 
         if (!$transaction) {
@@ -119,14 +118,10 @@ class PaymentFactory
             throw new \Exception('Ures order id');
         }
 
-        $transaction = $this->doctrine
+        $transaction = $this
+            ->doctrine
             ->getRepository('HgabkaPayUBundle:PayUTransaction')
-            ->createQueryBuilder('t')
-            ->where('t.ShopOrderId = :orderid')
-            ->setParameter('orderid', $orderId)
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult()
+            ->getTransactionByOrderId($orderId)
         ;
 
         if (!$transaction) {
