@@ -41,6 +41,9 @@ class PaymentFactory
         $this->router = $router;
         $this->config = $config;
         $this->dispatcher = $dispatcher;
+        if ($config['logging'] && !is_dir($config['log_path'])) {
+            @mkdir($config['log_path']);
+        }
     }
 
     /**
