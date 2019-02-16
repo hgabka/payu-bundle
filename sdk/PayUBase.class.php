@@ -441,6 +441,7 @@ class PayUTransaction extends PayUBase
                 curl_setopt($curlData, CURLOPT_USERAGENT, 'curl');
                 curl_setopt($curlData, CURLOPT_TIMEOUT, 60);
                 curl_setopt($curlData, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt ($curlData, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);    
                 //cURL + SSL            
                 //curl_setopt($curlData, CURLOPT_SSL_VERIFYPEER, false); 
                 //curl_setopt($curlData, CURLOPT_SSL_VERIFYHOST, false);
